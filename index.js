@@ -20,6 +20,8 @@ async function run() {
         const chequeLedger = client.db('myAccounts').collection('chequeLedger');
         const categories = client.db('myAccounts').collection('categories');
         const subCategories = client.db('myAccounts').collection('subcategories');
+        const banks = client.db('myAccounts').collection('banks');
+        const bankAccounts = client.db('myAccounts').collection('bankAccounts');
 
         console.log('Mongo server connected');
 
@@ -72,10 +74,67 @@ async function run() {
             const result = await categories.find().toArray();
             res.send(result);
         })
+
+        app.post('/categories', async (req, res) => {
+            const category= req.body;
+            const result = await categories.insertOne(category);
+            res.send(result);
+        })
+        app.delete('/categories/:id', async (req, res) => {
+            const id= req.params.id;
+            const filter={_id: ObjectId(id)}
+            const result = await categories.deleteOne(filter);
+            res.send(result);
+        })
+
         app.get('/subcategories', async (req, res) => {
             const result = await subCategories.find().toArray();
             res.send(result);
         });
+
+        app.post('/subcategories', async (req, res) => {
+            const subcategory= req.body;
+            const result = await subCategories.insertOne(subcategory);
+            res.send(result);
+        })
+        app.delete('/subcategories/:id', async (req, res) => {
+            const id= req.params.id;
+            const filter={_id: ObjectId(id)}
+            const result = await subCategories.deleteOne(filter);
+            res.send(result);
+        })
+        app.get('/accounts', async (req, res) => {
+            const result = await bankAccounts.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/accounts', async (req, res) => {
+            const account= req.body;
+            const result = await bankAccounts.insertOne(account);
+            res.send(result);
+        })
+        app.delete('/accounts/:id', async (req, res) => {
+            const id= req.params.id;
+            const filter={_id: ObjectId(id)}
+            const result = await bankAccounts.deleteOne(filter);
+            res.send(result);
+        })
+        app.get('/banks', async (req, res) => {
+            const result = await banks.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/banks', async (req, res) => {
+            const bank= req.body;
+            const result = await banks.insertOne(bank);
+            res.send(result);
+        })
+        app.delete('/banks/:id', async (req, res) => {
+            const id= req.params.id;
+            const filter={_id: ObjectId(id)}
+            const result = await banks.deleteOne(filter);
+            res.send(result);
+        })
 
         app.get('/todayledger', async (req, res) => {
             const date = req.query.date;
