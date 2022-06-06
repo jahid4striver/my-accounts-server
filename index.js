@@ -22,6 +22,7 @@ async function run() {
         const subCategories = client.db('myAccounts').collection('subcategories');
         const banks = client.db('myAccounts').collection('banks');
         const bankAccounts = client.db('myAccounts').collection('bankAccounts');
+        const loanAccounts = client.db('myAccounts').collection('loanAccounts');
 
         console.log('Mongo server connected');
 
@@ -68,6 +69,16 @@ async function run() {
             const cursor = dailyLedger.find();
             const ledgers = await cursor.toArray();
             res.send(ledgers);
+        })
+
+        app.get('/filteredexpense', async (req, res) => {
+            const category= req.query.category;
+            const subcategory= req.query.subcategory;
+            const startDate= req.query.startDate;
+            const endDate= req.query.endDate;
+            const filter= {category: category, subcategory:subcategory, date:{$gte:startDate, $lt:endDate}}
+            const result = await dailyLedger.find(filter).toArray();
+            res.send(result);
         })
 
         app.get('/categories', async (req, res) => {
@@ -133,6 +144,23 @@ async function run() {
             const id= req.params.id;
             const filter={_id: ObjectId(id)}
             const result = await banks.deleteOne(filter);
+            res.send(result);
+        })
+
+        app.get('/loanaccounts', async (req, res) => {
+            const result = await loanAccounts.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/loanaccounts', async (req, res) => {
+            const loan= req.body;
+            const result = await loanAccounts.insertOne(loan);
+            res.send(result);
+        })
+        app.delete('/loanaccounts/:id', async (req, res) => {
+            const id= req.params.id;
+            const filter={_id: ObjectId(id)}
+            const result = await loanAccounts.deleteOne(filter);
             res.send(result);
         })
 
