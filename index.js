@@ -18,6 +18,7 @@ async function run() {
         await client.connect();
         const dailyLedger = client.db('myAccounts').collection('dailyledger');
         const chequeLedger = client.db('myAccounts').collection('chequeLedger');
+        const cashLedger = client.db('myAccounts').collection('cashLedger');
         const categories = client.db('myAccounts').collection('categories');
         const subCategories = client.db('myAccounts').collection('subcategories');
         const banks = client.db('myAccounts').collection('banks');
@@ -72,11 +73,11 @@ async function run() {
         })
 
         app.get('/filteredexpense', async (req, res) => {
-            const category= req.query.category;
-            const subcategory= req.query.subcategory;
-            const startDate= req.query.startDate;
-            const endDate= req.query.endDate;
-            const filter= {category: category, subcategory:subcategory, date:{$gte:startDate, $lt:endDate}}
+            const category = req.query.category;
+            const subcategory = req.query.subcategory;
+            const startDate = req.query.startDate;
+            const endDate = req.query.endDate;
+            const filter = { category: category, subcategory: subcategory, date: { $gte: startDate, $lt: endDate } }
             const result = await dailyLedger.find(filter).toArray();
             res.send(result);
         })
@@ -87,13 +88,13 @@ async function run() {
         })
 
         app.post('/categories', async (req, res) => {
-            const category= req.body;
+            const category = req.body;
             const result = await categories.insertOne(category);
             res.send(result);
         })
         app.delete('/categories/:id', async (req, res) => {
-            const id= req.params.id;
-            const filter={_id: ObjectId(id)}
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
             const result = await categories.deleteOne(filter);
             res.send(result);
         })
@@ -104,13 +105,13 @@ async function run() {
         });
 
         app.post('/subcategories', async (req, res) => {
-            const subcategory= req.body;
+            const subcategory = req.body;
             const result = await subCategories.insertOne(subcategory);
             res.send(result);
         })
         app.delete('/subcategories/:id', async (req, res) => {
-            const id= req.params.id;
-            const filter={_id: ObjectId(id)}
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
             const result = await subCategories.deleteOne(filter);
             res.send(result);
         })
@@ -120,13 +121,13 @@ async function run() {
         });
 
         app.post('/accounts', async (req, res) => {
-            const account= req.body;
+            const account = req.body;
             const result = await bankAccounts.insertOne(account);
             res.send(result);
         })
         app.delete('/accounts/:id', async (req, res) => {
-            const id= req.params.id;
-            const filter={_id: ObjectId(id)}
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
             const result = await bankAccounts.deleteOne(filter);
             res.send(result);
         })
@@ -136,13 +137,13 @@ async function run() {
         });
 
         app.post('/banks', async (req, res) => {
-            const bank= req.body;
+            const bank = req.body;
             const result = await banks.insertOne(bank);
             res.send(result);
         })
         app.delete('/banks/:id', async (req, res) => {
-            const id= req.params.id;
-            const filter={_id: ObjectId(id)}
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
             const result = await banks.deleteOne(filter);
             res.send(result);
         })
@@ -153,13 +154,13 @@ async function run() {
         });
 
         app.post('/loanaccounts', async (req, res) => {
-            const loan= req.body;
+            const loan = req.body;
             const result = await loanAccounts.insertOne(loan);
             res.send(result);
         })
         app.delete('/loanaccounts/:id', async (req, res) => {
-            const id= req.params.id;
-            const filter={_id: ObjectId(id)}
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
             const result = await loanAccounts.deleteOne(filter);
             res.send(result);
         })
@@ -182,7 +183,7 @@ async function run() {
 
         // Add A Cheque
 
-         app.post('/chequeledger', async (req, res) => {
+        app.post('/chequeledger', async (req, res) => {
             const newCheque = req.body;
             const result = await chequeLedger.insertOne(newCheque);
             res.send(result)
@@ -190,7 +191,7 @@ async function run() {
 
         // Read A Cheque
 
-         app.get('/chequeledger', async (req, res) => {
+        app.get('/chequeledger', async (req, res) => {
             const result = await chequeLedger.find().toArray();
             res.send(result);
         });
@@ -211,7 +212,7 @@ async function run() {
         })
 
         // delete a cheque
-        
+
         app.delete('/chequeledger/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
@@ -219,7 +220,49 @@ async function run() {
             console.log('para working');
             res.send(cheque);
         })
-        
+
+        // Cash Section Start
+
+        app.post('/dailycash', async (req, res) => {
+            const newCash = req.body;
+            const result = await cashLedger.insertOne(newCash);
+            res.send(result)
+        });
+        app.get('/dailycash', async (req, res) => {
+            const result = await cashLedger.find().toArray();
+            res.send(result)
+        });
+
+        app.get('/todaycash', async (req, res) => {
+            const date = req.query.date;
+            const filter = { date: date }
+            const result = await cashLedger.find(filter).toArray();
+            res.send(result);
+
+        })
+
+
+        app.delete('/dailycash/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const ledger = await cashLedger.deleteOne(query);
+            res.send(ledger);
+        })
+        // get with id
+
+        app.put('/dailycash/:id', async (req, res) => {
+            const id = req.params.id;
+            const cash = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: cash
+            }
+            const updatedCash = await cashLedger.updateOne(filter, updateDoc, options);
+            res.send(updatedCash);
+        })
+
+
     }
     finally {
 
