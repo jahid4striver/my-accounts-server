@@ -77,7 +77,7 @@ async function run() {
             const subcategory = req.query.subcategory;
             const startDate = req.query.startDate;
             const endDate = req.query.endDate;
-            const filter = { category: category, subcategory: subcategory, date: { $gte: startDate, $lt: endDate } }
+            const filter = { category: category, subcategory: subcategory, date: { $gte: startDate, $lte: endDate } }
             const result = await dailyLedger.find(filter).toArray();
             res.send(result);
         })
@@ -169,6 +169,22 @@ async function run() {
             const date = req.query.date;
             const filter = { date: date }
             const result = await dailyLedger.find(filter).toArray();
+            res.send(result);
+
+        })
+        app.get('/onlyexpense', async (req, res) => {
+            const startDate = req.query.startDate;
+            const endDate = req.query.endDate;
+            const filter = {date: { $gte: startDate, $lte: endDate } }
+            const result = await dailyLedger.find(filter).toArray();
+            res.send(result);
+
+        })
+        app.get('/onlyincome', async (req, res) => {
+            const startDate = req.query.startDate;
+            const endDate = req.query.endDate;
+            const filter = {date: { $gte: startDate, $lte: endDate } }
+            const result = await cashLedger.find(filter).toArray();
             res.send(result);
 
         })
