@@ -24,6 +24,7 @@ async function run() {
         const banks = client.db('myAccounts').collection('banks');
         const bankAccounts = client.db('myAccounts').collection('bankAccounts');
         const loanAccounts = client.db('myAccounts').collection('loanAccounts');
+        const handCash = client.db('myAccounts').collection('handCash');
 
         console.log('Mongo server connected');
 
@@ -175,7 +176,7 @@ async function run() {
         app.get('/onlyexpense', async (req, res) => {
             const startDate = req.query.startDate;
             const endDate = req.query.endDate;
-            const filter = {date: { $gte: startDate, $lte: endDate } }
+            const filter = { date: { $gte: startDate, $lte: endDate } }
             const result = await dailyLedger.find(filter).toArray();
             res.send(result);
 
@@ -183,7 +184,7 @@ async function run() {
         app.get('/onlyincome', async (req, res) => {
             const startDate = req.query.startDate;
             const endDate = req.query.endDate;
-            const filter = {date: { $gte: startDate, $lte: endDate } }
+            const filter = { date: { $gte: startDate, $lte: endDate } }
             const result = await cashLedger.find(filter).toArray();
             res.send(result);
 
@@ -278,6 +279,27 @@ async function run() {
             res.send(updatedCash);
         })
 
+        // Hand Cash Calculations
+
+        app.put('/handcash', async (req, res) => {
+            const cash = req.body;
+            const date = req.query.date;
+            const filter = { date: date };
+            const options = { upsert: true }
+            const updateDoc = {
+                $set: cash
+            }
+            const result = await handCash.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+
+        app.get('/yesterdaycash', async (req, res) => {
+            const date = req.query.date;
+            const filter = { date: date }
+            const result = await handCash.findOne(filter);
+            res.send(result);
+
+        })
 
     }
     finally {
