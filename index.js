@@ -299,6 +299,32 @@ async function run() {
             const result = await handCash.findOne(filter);
             res.send(result);
 
+        });
+
+        // cash and income 
+
+        app.get('/categorywiseexpense', async (req, res) => {
+            const category = req.query.category;
+            const subcategory = req.query.subcategory;
+            const filter = { category: category, subcategory: subcategory };
+            const result = await dailyLedger.find(filter).toArray();
+            res.send(result);
+        })
+
+
+        // app.get('/expenseamount', async (req, res) => {
+        //     const category = req.query.category;
+        //     const subcategory = req.query.subcategory;
+        //     const filter = { category: category, subcategory: subcategory }
+        //     const result = await dailyLedger.find(filter).toArray();
+        //     res.send(result);
+        // })
+        app.get('/incomeamount', async (req, res) => {
+            const chequecategory = req.query.chequecategory;
+            const chequesubcategory = req.query.chequesubcategory;
+            const filter = { chequecategory: chequecategory, chequesubcategory: chequesubcategory }
+            const result = await chequeLedger.find(filter).toArray();
+            res.send(result);
         })
 
     }
