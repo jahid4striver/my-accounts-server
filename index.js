@@ -327,6 +327,31 @@ async function run() {
             res.send(result);
         })
 
+
+        app.get('/filteredcheques', async (req, res) => {
+            const chequecategory = req.query.chequecategory;
+            const chequesubcategory = req.query.chequesubcategory;
+            const startDate = req.query.startDate;
+            const endDate = req.query.endDate;
+            const filter = { chequecategory: chequecategory, chequesubcategory: chequesubcategory, chequedate: { $gte: startDate, $lte: endDate } }
+            const result = await chequeLedger.find(filter).toArray();
+            res.send(result);
+        });
+
+        app.get('/myexpenses', async(req, res)=>{
+            const category= req.query.category;
+            const subcategory= req.query.subcategory;
+            const filter= {category: category, subcategory:subcategory};
+            const result= await dailyLedger.find(filter).toArray();
+            res.send(result);
+        })
+        app.get('/ownerexpenses', async(req, res)=>{
+            const category= req.query.category;
+            const filter= {category: category};
+            const result= await dailyLedger.find(filter).toArray();
+            res.send(result);
+        })
+
     }
     finally {
 
