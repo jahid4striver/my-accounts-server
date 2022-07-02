@@ -17,6 +17,7 @@ async function run() {
     try {
         await client.connect();
         const dailyLedger = client.db('myAccounts').collection('dailyledger');
+        const finalDailyLedger = client.db('myAccounts').collection('finalledger');
         const chequeLedger = client.db('myAccounts').collection('chequeLedger');
         const cashLedger = client.db('myAccounts').collection('cashLedger');
         const categories = client.db('myAccounts').collection('categories');
@@ -350,6 +351,26 @@ async function run() {
             const filter= {category: category};
             const result= await dailyLedger.find(filter).toArray();
             res.send(result);
+        })
+
+        app.put('/finalexpense/:id', async(req, res)=>{
+            const id= req.params.id;
+            const data= req.body;
+            const filter={_id: ObjectId(id)}
+            const options= {upsert: true}
+            const updateDoc={
+                $set:data,
+            }
+            const result= await dailyLedger.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+
+        app.get('/accountsbalance', async(req,res)=>{
+            const account= req.query.account;
+            const filter= {account: account};
+            const result= await cashLedger.find(filter).toArray();
+            res.send(result)
         })
 
     }
