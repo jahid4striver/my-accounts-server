@@ -26,6 +26,7 @@ async function run() {
         const bankAccounts = client.db('myAccounts').collection('bankAccounts');
         const loanAccounts = client.db('myAccounts').collection('loanAccounts');
         const loanAccountsGiven = client.db('myAccounts').collection('loanAccountsGiven');
+        const advanceSalary = client.db('myAccounts').collection('advanceSalary');
         const handCash = client.db('myAccounts').collection('handCash');
 
         console.log('Mongo server connected');
@@ -181,6 +182,22 @@ async function run() {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
             const result = await loanAccountsGiven.deleteOne(filter);
+            res.send(result);
+        })
+        app.get('/advancesalary', async (req, res) => {
+            const result = await advanceSalary.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/advancesalary', async (req, res) => {
+            const loan = req.body;
+            const result = await advanceSalary.insertOne(loan);
+            res.send(result);
+        })
+        app.delete('/advancesalary/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await advanceSalary.deleteOne(filter);
             res.send(result);
         })
 
