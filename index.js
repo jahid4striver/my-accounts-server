@@ -201,6 +201,19 @@ async function run() {
             res.send(result);
         })
 
+
+        app.get('/loangivenreturnreport', async (req, res) => {
+            const expense = req.query.expense;
+            const filter = { expense: expense};
+            const result = await dailyLedger.find(filter).toArray();
+            res.send(result);
+        })
+        app.get('/loanreturnreport', async (req, res) => {
+            const result = await cashLedger.find().toArray();
+            res.send(result);
+
+        })
+
         app.get('/todayledger', async (req, res) => {
             const date = req.query.date;
             const filter = { date: date }
