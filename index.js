@@ -293,7 +293,7 @@ async function run() {
             const result = await cashLedger.insertOne(newCash);
             res.send(result)
         });
-        app.get('/dailycash', async (req, res) => {
+        app.get('/`dailycash`', async (req, res) => {
             const result = await cashLedger.find().toArray();
             res.send(result)
         });
