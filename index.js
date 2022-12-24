@@ -28,6 +28,7 @@ async function run() {
         const loanAccountsGiven = client.db('myAccounts').collection('loanAccountsGiven');
         const advanceSalary = client.db('myAccounts').collection('advanceSalary');
         const handCash = client.db('myAccounts').collection('handCash');
+        const handCash = client.db('myAccounts').collection('bankDeposits');
 
         console.log('Mongo server connected');
 
@@ -75,6 +76,44 @@ async function run() {
             const ledgers = await cursor.toArray();
             res.send(ledgers);
         })
+        app.post('/deposits', async (req, res) => {
+            const newLedger = req.body;
+            console.log('Adding New Ledger', newLedger);
+            const result = await bankDeposits.insertOne(newLedger);
+            res.send(result)
+        });
+
+        // get with id
+
+        app.delete('/deposits/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const ledger = await bankDeposits.deleteOne(query);
+            console.log('para working');
+            res.send(ledger);
+        })
+        // get with id
+
+        app.put('/deposits/:id', async (req, res) => {
+            const id = req.params.id;
+            const expense = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: expense
+            }
+            const updatedLedger = await bankDeposits.updateOne(filter, updateDoc, options);
+            console.log('para working');
+            res.send(updatedLedger);
+        })
+
+        // get the item from db
+
+        app.get('/deposits', async (req, res) => {
+            const cursor = bankDeposits.find();
+            const ledgers = await cursor.toArray();
+            res.send(ledgers);
+        })
 
         app.get('/filteredexpense', async (req, res) => {
             const category = req.query.category;
@@ -92,7 +131,7 @@ async function run() {
         })
 
         app.post('/categories', async (req, res) => {
-            const category = req.body;
+            const category = req.body; 
             const result = await categories.insertOne(category);
             res.send(result);
         })
