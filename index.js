@@ -28,7 +28,7 @@ async function run() {
         const loanAccountsGiven = client.db('myAccounts').collection('loanAccountsGiven');
         const advanceSalary = client.db('myAccounts').collection('advanceSalary');
         const handCash = client.db('myAccounts').collection('handCash');
-        const handCash = client.db('myAccounts').collection('bankDeposits');
+        const bankDeposits = client.db('myAccounts').collection('bankDeposits');
 
         console.log('Mongo server connected');
 
