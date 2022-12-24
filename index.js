@@ -29,6 +29,7 @@ async function run() {
         const advanceSalary = client.db('myAccounts').collection('advanceSalary');
         const handCash = client.db('myAccounts').collection('handCash');
         const bankDeposits = client.db('myAccounts').collection('bankDeposits');
+        const profitAccounts = client.db('myAccounts').collection('profitAccounts');
 
         console.log('Mongo server connected');
 
@@ -110,9 +111,8 @@ async function run() {
         // get the item from db
 
         app.get('/deposits', async (req, res) => {
-            const cursor = bankDeposits.find();
-            const ledgers = await cursor.toArray();
-            res.send(ledgers);
+            const result = await bankDeposits.find().toArray();
+            res.send(result);
         })
 
         app.get('/filteredexpense', async (req, res) => {
@@ -188,6 +188,22 @@ async function run() {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
             const result = await banks.deleteOne(filter);
+            res.send(result);
+        })
+        app.get('/profitAccounts', async (req, res) => {
+            const result = await profitAccounts.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/profitAccounts', async (req, res) => {
+            const bank = req.body;
+            const result = await profitAccounts.insertOne(bank);
+            res.send(result);
+        })
+        app.delete('/profitAccounts/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await profitAccounts.deleteOne(filter);
             res.send(result);
         })
 
