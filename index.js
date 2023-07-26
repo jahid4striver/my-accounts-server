@@ -3,6 +3,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { format } = require('date-fns');
 
 
 app.use(cors());
@@ -348,7 +349,7 @@ async function run() {
             const result = await cashLedger.insertOne(newCash);
             res.send(result)
         });
-        app.get('/`dailycash`', async (req, res) => {
+        app.get('/dailycash', async (req, res) => {
             const result = await cashLedger.find().toArray();
             res.send(result)
         });
@@ -474,7 +475,96 @@ async function run() {
             const result= await cashLedger.find(filter).toArray();
             res.send(result)
         })
+        app.get('/categorywisecheques', async(req,res)=>{
+            const chequecategory= req.query.chequecategory;
+            const filter= {chequecategory: chequecategory};
+            const result= await chequeLedger.find(filter).toArray();
+            res.send(result)
+        })
 
+        app.get('/todayexpenses', async (req, res) => {
+            const date = new Date();
+            const today = format(date, "yyyy-MM-dd");
+            const filter = { date: today };
+            const result = await dailyLedger.find(filter).toArray();
+            res.send(result);
+        });
+
+        app.get('/getcurrentmonthexpenses', async (req, res) => {
+            const today = new Date();
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            const start = format(startOfMonth, 'yyyy-MM-dd');
+            const end = format(endOfMonth, 'yyyy-MM-dd')
+
+            const result = await dailyLedger.aggregate([
+                {
+                    $match: {
+                        date: {
+                            $gte: start,
+                            $lte: end,
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$date",
+                        expense: { $sum: {$toInt: "$amount"} }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        day: "$_id",
+                        expense: 1
+                    }
+                }]).toArray();
+
+            const sorted = result.sort(function (a, b) {
+                return (a?.day > b?.day) ? 1 : ((a?.day < b?.day) ? -1 : 0);
+            });
+
+            res.send(sorted)
+        })
+
+        app.get('/getmonthwiseexpenses', async (req, res) => {
+            const today = new Date();
+            const startOfYear = new Date(today.getFullYear(), 0, 1);
+            const endOfYear = new Date(today.getFullYear() + 1, 0, 0);
+            const start = format(startOfYear, 'yyyy-MM-dd');
+            const end = format(endOfYear, 'yyyy-MM-dd');
+
+            const result = await dailyLedger.aggregate([
+                {
+                    $match: {
+                        date: {
+                            $gte: start,
+                            $lte: end,
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: null, // Grouping by the 'month' field
+                        totalExpense: { $sum: {$toInt:"$amount"} }, // Calculating the sum of grandTotal for each month
+                    },
+                },
+                {
+                    $project: {
+                        totalExpense:1
+                        // date:1,
+                        // amount:1,
+                        // _id: 0, // Hide the default _id field from the result
+                        // month: "$_id", // Rename the _id field to 'month'
+                        // sales: "$totalGrandTotal",
+                        // salesDate: 1// Rename the totalGrandTotal field to 'totalAmount'
+                    },
+                },
+            ]).toArray();
+            // const sorted = result.sort((a, b) => b.month.localeCompare(a.month))
+
+            res.send(result)
+        })
     }
     finally {
 
